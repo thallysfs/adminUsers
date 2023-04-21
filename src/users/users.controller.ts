@@ -9,7 +9,9 @@ import {
 } from '@nestjs/common';
 import { UserService } from './shared/user.service/user.service';
 import { User } from './shared/user/user';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private userService: UserService) {}
