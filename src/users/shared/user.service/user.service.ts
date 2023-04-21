@@ -1,53 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '../user/user';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class UserService {
-  users: User[] = [
-    {
-      id: 1,
-      email: 'thallys@hotmail.com',
-      password: '123456',
-      permission: 'admin',
-    },
-    {
-      id: 2,
-      email: 'dayse@hotmail.com',
-      password: '456789',
-      permission: 'operator',
-    },
-    {
-      id: 1,
-      email: 'chico@hotmail.com',
-      password: 'abm123',
-      permission: 'operator',
-    },
-  ];
+  constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
 
-  getAll() {
-    return this.users;
+  async getAll() {
+    return await this.userModel.find().exec();
   }
 
-  getById(id: number) {
-    const user = this.users.find((x) => x.id == id);
-    return user;
+  async getById(id: string) {
+    return await this.userModel.findById(id).exec();
   }
 
-  create(user: User) {
-    //incrementando o id
-    let lastId = 0;
-    if (this.users.length > 0) {
-      lastId = this.users[this.users.length - 1].id;
-    }
-
-    user.id = lastId + 1;
-    this.users.push(user);
-
-    return user;
+  async create(user: User) {
+    const createdUser = new this.userModel(user);
+    return await createdUser.save();
   }
 
-  delete(id: number) {
-    const index = this.users.findIndex((x) => x.id == id);
-    this.users.splice(index, 1);
+  async update(id: string, user: User) {
+    await this.userModel.updateOne({ _id: id }, user).exec();
+    return this.getById(id);
+  }
+
+  async delete(id: string) {
+    return await this.userModel.deleteOne({ _id: id }).exec();
   }
 }
